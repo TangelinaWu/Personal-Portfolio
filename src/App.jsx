@@ -593,7 +593,7 @@ export default function Portfolio() {
     const onWheel = (e) => {
       e.preventDefault()
       const max = document.documentElement.scrollHeight - window.innerHeight
-      target = Math.max(0, Math.min(max, target + e.deltaY * 0.5))
+      target = Math.max(0, Math.min(max, target + e.deltaY * 0.28))
       if (!rafId) rafId = requestAnimationFrame(tick)
     }
 
@@ -811,9 +811,14 @@ export default function Portfolio() {
                 <p style={{ fontSize: '17px', lineHeight: 1.7, color: 'oklch(0.78 0.015 252)', margin: '0 0 20px', fontWeight: 300 }}>
                   I&apos;m a junior at NYU studying computer science and economics, and I&apos;ve spent the last two years interning across the stack — training AI models that extract data for multi-billion-dollar wealth firms, shipping ed-tech used in dozens of schools, and turning raw datasets into real-time dashboards.
                 </p>
-                <p style={{ fontSize: '17px', lineHeight: 1.7, color: 'oklch(0.78 0.015 252)', margin: 0, fontWeight: 300 }}>
+                <p style={{ fontSize: '17px', lineHeight: 1.7, color: 'oklch(0.78 0.015 252)', margin: '0 0 26px', fontWeight: 300 }}>
                   I&apos;m equally at home in a Jupyter notebook tuning a model and in a React Native codebase wiring up a mobile app. I care about the details that make software trustworthy — accuracy, reliability, and an interface people don&apos;t have to think about. Outside class I lead the Google Developer Group at NYU.
                 </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {['Python', 'TypeScript', 'React', 'Machine Learning', 'SQL', 'Node.js'].map(tech => (
+                    <span key={tech} style={chip}>{tech}</span>
+                  ))}
+                </div>
               </div>
               <div data-reveal data-delay="120" style={{
                 display: 'flex', flexDirection: 'column', gap: '1px',
@@ -841,7 +846,6 @@ export default function Portfolio() {
           <div style={inner}>
             <div data-reveal style={sectionHeader}>
               <span style={eyebrow}>02 — EXPERIENCE</span>
-              <h2 style={sectionTitle}>Where I&apos;ve shipped</h2>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {experience.map((job, i) => (
@@ -866,7 +870,6 @@ export default function Portfolio() {
           <div style={inner}>
             <div data-reveal style={sectionHeader}>
               <span style={eyebrow}>03 — SELECTED WORK</span>
-              <h2 style={sectionTitle}>Things I&apos;ve built from scratch</h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: '22px' }}>
               {projects.map(p => (
@@ -887,8 +890,11 @@ export default function Portfolio() {
                   <h3 style={{ ...mono, fontSize: '21px', fontWeight: 500, margin: '0 0 6px', color: 'oklch(0.96 0.01 250)' }}>{p.name}</h3>
                   <div style={{ ...serif, fontStyle: 'italic', fontSize: '18px', color: 'oklch(0.66 0.14 305)', marginBottom: '14px' }}>{p.tagline}</div>
                   <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'oklch(0.74 0.015 252)', margin: '0 0 22px', fontWeight: 300, flex: 1 }}>{p.desc}</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '20px' }}>
                     {p.tags.map(tag => <span key={tag} style={tagChip}>{tag}</span>)}
+                  </div>
+                  <div style={{ ...mono, fontSize: '13px', color: 'oklch(0.63 0.18 255)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: 'auto' }}>
+                    View on GitHub ↗
                   </div>
                 </a>
               ))}
@@ -901,7 +907,6 @@ export default function Portfolio() {
           <div style={inner}>
             <div data-reveal style={sectionHeader}>
               <span style={eyebrow}>04 — TOOLKIT</span>
-              <h2 style={sectionTitle}>The stack I reach for</h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: '34px 48px' }}>
               {skillGroups.map(g => (
@@ -928,7 +933,6 @@ export default function Portfolio() {
           <div style={inner}>
             <div data-reveal style={sectionHeader}>
               <span style={eyebrow}>05 — LEADERSHIP</span>
-              <h2 style={sectionTitle}>Beyond the keyboard</h2>
             </div>
             <div data-reveal style={{ ...timelineGrid, padding: '34px 0', borderTop: '1px solid oklch(0.28 0.007 280 / 0.6)' }}>
               <div style={{ ...mono, fontSize: '13px', color: 'oklch(0.58 0.02 255)', paddingTop: '5px' }}>Feb 2025 — Present</div>
@@ -1014,9 +1018,12 @@ export default function Portfolio() {
           <div style={{ ...inner, position: 'relative', textAlign: 'center' }}>
             <div data-reveal>
               <span style={eyebrow}>08 — CONTACT</span>
-              <h2 style={{ ...serif, fontWeight: 400, fontSize: 'clamp(40px,7vw,92px)', lineHeight: 1.02, margin: '20px 0 30px', color: 'oklch(0.97 0.008 250)' }}>
-                Let&apos;s build something <span style={{ fontStyle: 'italic', color: 'oklch(0.62 0.20 305)' }}>people use.</span>
+              <h2 style={{ ...serif, fontWeight: 400, fontSize: 'clamp(40px,7vw,92px)', lineHeight: 1.02, margin: '20px 0 18px', color: 'oklch(0.97 0.008 250)' }}>
+                Get in touch
               </h2>
+              <p style={{ ...mono, fontSize: '13px', letterSpacing: '0.03em', color: 'oklch(0.60 0.02 255)', margin: '0 0 30px' }}>
+                Open to Summer 2027 SWE internships &amp; new-grad opportunities
+              </p>
               <a href="mailto:aw5287@nyu.edu"
                 style={{ display: 'inline-block', ...serif, fontSize: 'clamp(22px,3.5vw,38px)', color: 'oklch(0.90 0.012 250)', borderBottom: '1px solid oklch(0.40 0.008 280)', paddingBottom: '5px', transition: 'color .25s, border-color .25s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = 'oklch(0.63 0.18 255)'; e.currentTarget.style.borderColor = 'oklch(0.63 0.18 255)' }}
