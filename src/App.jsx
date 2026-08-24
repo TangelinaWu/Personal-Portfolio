@@ -151,8 +151,7 @@ export default function Portfolio() {
     const c = canvasRef.current
     if (!c) return
     const ctx = c.getContext('2d')
-    const BLUE = '80,130,246'
-    const VIOLET = '160,90,220'
+    const PURPLE = '160,90,220'
     let w = 0, h = 0, nodes = [], pulses = [], last = 0
     const mouse = { x: -9999, y: -9999, active: false }
     let rafId
@@ -173,29 +172,25 @@ export default function Portfolio() {
       const count = Math.max(14, Math.min(42, Math.round(w * h / 20000)))
       nodes = []
       for (let i = 0; i < count; i++) {
-        const isViolet = Math.random() < 0.28
-        const speed = 0.06 + Math.random() * 0.14
+        const speed = 0.02 + Math.random() * 0.04
         const angle = Math.random() * Math.PI * 2
         nodes.push({
           x: Math.random() * w,
           y: Math.random() * h,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          // drift wobble (sinusoidal perpendicular motion)
-          wobbleAmp: 0.3 + Math.random() * 0.7,
-          wobbleSpeed: 0.0004 + Math.random() * 0.0008,
+          wobbleAmp: 0.1 + Math.random() * 0.15,
+          wobbleSpeed: 0.0003 + Math.random() * 0.0005,
           wobblePhase: Math.random() * Math.PI * 2,
-          // star shape
-          size: 3 + Math.random() * 10,
+          size: 3 + Math.random() * 9,
           points: Math.random() < 0.55 ? 4 : 5,
           innerRatio: 0.30 + Math.random() * 0.25,
-          // twinkling
           twinklePhase: Math.random() * Math.PI * 2,
-          twinkleSpeed: 0.0009 + Math.random() * 0.0019,
-          opacityBase: 0.50 + Math.random() * 0.35,
-          opacityAmp: 0.18 + Math.random() * 0.32,
-          scaleAmp: 0.12 + Math.random() * 0.38,
-          color: isViolet ? VIOLET : BLUE,
+          twinkleSpeed: 0.0006 + Math.random() * 0.001,
+          opacityBase: 0.18 + Math.random() * 0.18,
+          opacityAmp: 0.06 + Math.random() * 0.08,
+          scaleAmp: 0.04 + Math.random() * 0.08,
+          color: PURPLE,
         })
       }
     }
@@ -229,8 +224,8 @@ export default function Portfolio() {
         const px = spd > 0 ? -n.vy / spd : 0
         const py = spd > 0 ? n.vx / spd : 0
         const wobble = Math.sin(t * n.wobbleSpeed + n.wobblePhase) * n.wobbleAmp
-        n.x += n.vx + px * wobble * 0.04
-        n.y += n.vy + py * wobble * 0.04
+        n.x += n.vx + px * wobble * 0.01
+        n.y += n.vy + py * wobble * 0.01
 
         // cursor repulsion
         if (mouse.active) {
@@ -261,7 +256,7 @@ export default function Portfolio() {
         for (const n of nodes) {
           const d = Math.hypot(n.x - mouse.x, n.y - mouse.y)
           if (d < 220) {
-            ctx.strokeStyle = `rgba(${VIOLET},${(1 - d / 220) * 0.4})`
+            ctx.strokeStyle = `rgba(${PURPLE},${(1 - d / 220) * 0.4})`
             ctx.lineWidth = 0.7
             ctx.beginPath(); ctx.moveTo(mouse.x, mouse.y); ctx.lineTo(n.x, n.y); ctx.stroke()
           }
@@ -280,29 +275,43 @@ export default function Portfolio() {
         const a = nodes[p.i], b = nodes[p.j]
         if (!a || !b) continue
         const px = a.x + (b.x - a.x) * p.t, py = a.y + (b.y - a.y) * p.t
-        ctx.fillStyle = `rgba(${VIOLET},0.9)`
+        ctx.fillStyle = `rgba(${PURPLE},0.9)`
         ctx.beginPath(); ctx.arc(px, py, 2.2, 0, Math.PI * 2); ctx.fill()
       }
       pulses = pulses.filter(p => p.t < 1)
 
       // stars
       for (const n of nodes) {
-        const opacity = Math.max(0.08, Math.min(1, n.opacityBase + n.opacityAmp * Math.sin(t * n.twinkleSpeed + n.twinklePhase)))
-        const scale = 1 + n.scaleAmp * Math.sin(t * n.twinkleSpeed * 1.4 + n.twinklePhase + 1.3)
+        const contactDist = mouse.active ? Math.hypot(n.x - mouse.x, n.y - mouse.y) : Infinity
+        const inContact = contactDist < n.size * 3 + 18
+
+        const opacity = inContact
+          ? 0.95
+          : Math.max(0.06, Math.min(0.6, n.opacityBase + n.opacityAmp * Math.sin(t * n.twinkleSpeed + n.twinklePhase)))
+        const scale = inContact
+          ? 1.6
+          : 1 + n.scaleAmp * Math.sin(t * n.twinkleSpeed * 1.4 + n.twinklePhase + 1.3)
         const outerR = n.size * scale
         const innerR = outerR * n.innerRatio
 
         // soft glow halo
-        const glowR = outerR * 3.8
+        const glowR = outerR * (inContact ? 5 : 2.8)
         const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowR)
-        grd.addColorStop(0, `rgba(${n.color},${opacity * 0.28})`)
+        grd.addColorStop(0, `rgba(${n.color},${opacity * (inContact ? 0.45 : 0.12)})`)
         grd.addColorStop(1, `rgba(${n.color},0)`)
         ctx.fillStyle = grd
         ctx.beginPath(); ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2); ctx.fill()
 
-        // star body with bloom
-        ctx.shadowBlur = outerR * 2.5
-        ctx.shadowColor = `rgba(${n.color},${opacity * 0.7})`
+        // contact ring
+        if (inContact) {
+          ctx.strokeStyle = `rgba(${PURPLE},0.6)`
+          ctx.lineWidth = 1
+          ctx.beginPath(); ctx.arc(n.x, n.y, outerR * 2.2, 0, Math.PI * 2); ctx.stroke()
+        }
+
+        // star body
+        ctx.shadowBlur = inContact ? outerR * 3.5 : outerR * 1.2
+        ctx.shadowColor = `rgba(${n.color},${opacity * (inContact ? 1 : 0.5)})`
         ctx.fillStyle = `rgba(${n.color},${opacity})`
         drawStar(n.x, n.y, outerR, innerR, n.points)
         ctx.fill()
@@ -757,45 +766,7 @@ export default function Portfolio() {
             </div>
           </div>
 
-          {/* Scroll cue */}
-          <div style={{
-            position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '9px',
-          }}>
-            <span style={{ ...mono, fontSize: '10px', letterSpacing: '0.18em', color: 'oklch(0.52 0.02 255)' }}>SCROLL</span>
-            <div style={{ width: '20px', height: '32px', border: '1px solid oklch(0.39 0.007 280)', borderRadius: '12px', position: 'relative' }}>
-              <span style={{
-                position: 'absolute', top: '6px', left: '50%', transform: 'translateX(-50%)',
-                width: '3px', height: '6px', borderRadius: '2px',
-                background: 'oklch(0.63 0.18 255)', animation: 'scrollcue 1.8s infinite',
-              }} />
-            </div>
-          </div>
         </section>
-
-        {/* ── Marquee band ─────────────────────────── */}
-        <div ref={marqueeRef} data-cursor="DRAG" style={{
-          overflow: 'hidden',
-          borderTop: '1px solid oklch(0.26 0.007 280 / 0.6)',
-          borderBottom: '1px solid oklch(0.26 0.007 280 / 0.6)',
-          padding: '30px 0', background: 'oklch(0.115 0.008 280 / 0.82)', cursor: 'grab',
-        }}>
-          <div ref={marqueeTrackRef} style={{
-            display: 'inline-flex', alignItems: 'center', gap: '42px',
-            whiteSpace: 'nowrap', willChange: 'transform',
-          }}>
-            <span style={{ ...serif, fontSize: 'clamp(30px,5.5vw,72px)', lineHeight: 1, color: 'oklch(0.95 0.01 250)' }}>Applied&nbsp;ML</span>
-            <span style={{ ...mono, fontSize: 'clamp(14px,2vw,22px)', color: 'oklch(0.62 0.20 305)' }}>✳</span>
-            <span style={{ ...serif, fontStyle: 'italic', fontSize: 'clamp(30px,5.5vw,72px)', lineHeight: 1, color: 'transparent', WebkitTextStroke: '1px oklch(0.63 0.18 255)' }}>Full-Stack</span>
-            <span style={{ ...mono, fontSize: 'clamp(14px,2vw,22px)', color: 'oklch(0.62 0.20 305)' }}>✳</span>
-            <span style={{ ...serif, fontSize: 'clamp(30px,5.5vw,72px)', lineHeight: 1, color: 'oklch(0.95 0.01 250)' }}>Data&nbsp;Pipelines</span>
-            <span style={{ ...mono, fontSize: 'clamp(14px,2vw,22px)', color: 'oklch(0.62 0.20 305)' }}>✳</span>
-            <span style={{ ...serif, fontStyle: 'italic', fontSize: 'clamp(30px,5.5vw,72px)', lineHeight: 1, color: 'transparent', WebkitTextStroke: '1px oklch(0.62 0.20 305)' }}>React&nbsp;Native</span>
-            <span style={{ ...mono, fontSize: 'clamp(14px,2vw,22px)', color: 'oklch(0.62 0.20 305)' }}>✳</span>
-            <span style={{ ...serif, fontSize: 'clamp(30px,5.5vw,72px)', lineHeight: 1, color: 'oklch(0.95 0.01 250)' }}>Computer&nbsp;Vision</span>
-            <span style={{ ...mono, fontSize: 'clamp(14px,2vw,22px)', color: 'oklch(0.62 0.20 305)' }}>✳</span>
-          </div>
-        </div>
 
         {/* ── About ────────────────────────────────── */}
         <section id="about" style={sectionPad}>
